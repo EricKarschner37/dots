@@ -1,0 +1,11 @@
+# Use file as a whitelist, not a blacklist
+/*
+!.gitignore
+!i3/
+!kitty/
+!nvim/
+!rofi/
+!dunstrc
+!polybar/
+!picom.conf
+!README.md

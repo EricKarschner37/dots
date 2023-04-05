@@ -1,0 +1,113 @@
+global !p
+def math():
+    return vim.eval('vimtex#syntax#in_mathzone()') == '1'
+
+def comment(): 
+    return vim.eval('vimtex#syntax#in_comment()') == '1'
+
+def env(name):
+    [x,y] = vim.eval("vimtex#env#is_inside('" + name + "')") 
+    return x != '0' and x != '0'
+
+endglobal
+
+snippet beg "begin{} / end{}" bA
+\begin{$1}
+	$0
+\end{$1}
+endsnippet
+
+snippet "\*\*(.*)\*\*" "Bold" riA
+\textbf{`!p snip.rv = match.group(1)`}
+endsnippet
+
+snippet "_(.*)_" "Italics" riA
+\textit{`!p snip.rv = match.group(1)`}
+endsnippet
+
+snippet "`(.*)`" "Verbatim" riA
+\verb|{`!p snip.rv = match.group(1)`}
+endsnippet
+
+snippet "- " "Item" bA
+\item 
+endsnippet
+
+snippet mk "Math" wA
+$${1}$`!p
+if t[2] and t[2][0] not in [',', '.', '?', '-', ' ']:
+    snip.rv = ' '
+else:
+    snip.rv = ''
+`$2
+endsnippet
+
+snippet dm "Math" wA
+\[
+$1
+.\] $0
+endsnippet
+
+context "math()"
+snippet _ "Sub" iA
+_{$1}$0
+endsnippet
+
+context "math()"
+snippet ^ "Sup" iA
+^{$1}$0
+endsnippet
+
+context "math()"
+snippet // "Fraction" iA
+\\frac{$1}{$2}$0
+endsnippet
+
+context "math()"
+snippet "([a-zA-Z0-9]+)bar" "bar" riA
+\overline{`!p snip.rv=match.group(1)`}
+endsnippet
+
+context "math()"
+snippet "([a-zA-Z0-9]+)hat" "hat" riA
+\hat{`!p snip.rv=match.group(1)`}
+endsnippet
+
+global !p
+def create_table(snip):
+	snip.buffer[snip.line] = '1/' + snip.buffer[snip.line].strip()
+	create_table_with_rows(snip)
+
+def gen_anon_row(cols, start_i=0):
+	return " & ".join([f'${i + 1 + start_i}' for i in range(cols)]) + "\\\\\\\n\t\t\\hline"
+
+def create_table_row(snip):
+	cols = int(snip.buffer[snip.line].strip())
+	snip.buffer[snip.line] = ''
+	anon_body = "\t\t" + gen_anon_row(cols) + "\n\t\t$0"
+	snip.expand_anon(anon_body)
+
+def create_table_with_rows(snip):
+	line = snip.buffer[snip.line].strip().split('/')
+	rows = int(line[0])
+	cols = int(line[1])
+	snip.buffer[snip.line] = ''
+	anon_body = "\\begin{center}\n\t\\begin{tabular}{" + ' | c' * cols + ' | ' + "}\n\t\t\\hline\n\t\t" + "\n\t\t".join([gen_anon_row(cols, i*cols) for i in range(rows)]) + "\n\t\t$0\n\t\\end{tabular}\n\\end{center}"
+	snip.expand_anon(anon_body)
+
+endglobal
+
+post_jump "create_table(snip)"
+snippet "table(\d+)" "table" rb
+`!p snip.rv = match.group(1)`
+endsnippet
+
+post_jump "create_table_with_rows(snip)"
+snippet "table(\d+/\d+)" "table" rb
+`!p snip.rv = match.group(1)`
+endsnippet
+
+post_jump "create_table_row(snip)"
+snippet "tr(\d+)" "table_row" r
+`!p snip.rv = match.group(1)`
+endsnippet

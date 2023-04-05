@@ -1,0 +1,8 @@
+{
+  "coc.preferences.formatOnSaveFiletypes": ["*"],
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "rust-analyzer.enable": true,
+  "rust-analyzer.imports.granularity.group": "crate",
+  "rust-analyzer.imports.granularity.enforce": true,
+  "java.home": "/usr/lib64/jvm/java-11-openjdk"
+}
