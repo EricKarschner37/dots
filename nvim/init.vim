@@ -13,6 +13,7 @@ Plug 'neoclide/coc.nvim', {'branch': 'release'}
 Plug 'lervag/vimtex'
 Plug 'sirver/ultisnips'
 Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && yarn install' }
+Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 
 "telescope + dependencies
 Plug 'nvim-lua/plenary.nvim'
@@ -29,9 +30,9 @@ call plug#end()
 let g:numbers_exclude = ['nerdtree']
 
 set termguicolors
-colorscheme allomancer
+colorscheme catppuccin_mocha
 
-let g:airline_theme='solarized_flood'
+let g:airline_theme='catppuccin_mocha'
 
 set tabstop=4
 set shiftwidth=4

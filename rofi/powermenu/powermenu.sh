@@ -1,117 +1,119 @@
 #!/usr/bin/env bash
-
-## Author  : Aditya Shakya
-## Mail    : adi1090x@gmail.com
-## Github  : @adi1090x
-## Twitter : @adi1090x
-
-# Available Styles
-# >> Created and tested on : rofi 1.6.0-1
-#
-# column_circle     column_square     column_rounded     column_alt
-# card_circle     card_square     card_rounded     card_alt
-# dock_circle     dock_square     dock_rounded     dock_alt
-# drop_circle     drop_square     drop_rounded     drop_alt
-# full_circle     full_square     full_rounded     full_alt
-# row_circle      row_square      row_rounded      row_alt
-
-theme="full_alt"
-dir="$HOME/.config/rofi/powermenu"
-
-# random colors
-styles=($(ls -p --hide="colors.rasi" $dir/styles))
-color="nightly.rasi"
-
-# comment this line to disable random colors
-sed -i -e "s/@import .*/@import \"$color\"/g" $dir/styles/colors.rasi
-
-# comment these lines to disable random style
-#themes=($(ls -p --hide="powermenu.sh" --hide="styles" --hide="confirm.rasi" --hide="message.rasi" $dir))
-#theme="${themes[$(( $RANDOM % 24 ))]}"
+rofi_command="rofi -theme $HOME/.config/rofi/config/powermenu.rasi"
 
 uptime=$(uptime -p | sed -e 's/up //g')
 
-rofi_command="rofi -theme $dir/$theme"
-
 # Options
-shutdown=""
-reboot=""
-lock=""
-suspend=""
-logout=""
+if [[ "$DIR" == "powermenus" ]]; then
+	shutdown=""
+	reboot=""
+	lock=""
+	suspend=""
+	logout=""
+	ddir="$HOME/.config/rofi/config"
+else
 
-# Confirmation
-confirm_exit() {
-	rofi -dmenu\
-		-i\
-		-no-fixed-num-lines\
-		-p "Are You Sure? : "\
-		-theme $dir/confirm.rasi
+# For some reason the Icons are mess up I don't know why but to fix it uncomment section 2 and comment section 1 but if the section 1 icons are mess up uncomment section 2 and comment section 1
+
+	# Buttons
+	layout=`cat $HOME/.config/rofi/config/powermenu.rasi | grep BUTTON | cut -d'=' -f2 | tr -d '[:blank:],*/'`
+	if [[ "$layout" == "TRUE" ]]; then
+  # Section 1
+
+		shutdown=""
+		reboot=""
+		lock=""
+		suspend=""
+		logout=""
+  # Section 2
+#		shutdown="襤"
+#		reboot="ﰇ"
+#		lock=""
+#		suspend="鈴"
+#		logout=" "
+
+
+	else
+  # Section 1
+		shutdown=" Shutdown"
+		reboot=" Restart"
+		lock=" Lock"
+		suspend=" Sleep"
+		logout=" Logout"
+  # Section 2
+#		shutdown="襤Shutdown"
+#		reboot="ﰇ Restart"
+#		lock=" Lock"
+#		suspend="鈴Sleep"
+#		logout=" Logout"
+	fi
+	ddir="$HOME/.config/rofi/config"
+fi
+
+# Ask for confirmation
+rdialog () {
+rofi -dmenu\
+    -i\
+    -no-fixed-num-lines\
+    -p "Are You Sure? : "\
+    -theme "$ddir/confirm.rasi"
 }
 
-# Message
-msg() {
-	rofi -theme "$dir/message.rasi" -e "Available Options  -  yes / y / no / n"
+# Display Help
+show_msg() {
+	rofi -theme "$ddir/askpass.rasi" -e "Options : yes / no / y / n"
 }
 
 # Variable passed to rofi
-options="$shutdown\n$reboot\n$lock\n$suspend\n$logout"
+options="$lock\n$suspend\n$logout\n$reboot\n$shutdown"
 
-chosen="$(echo -e "$options" | $rofi_command -p "Uptime: $uptime" -dmenu -selected-row 2)"
+chosen="$(echo -e "$options" | $rofi_command -p "UP - $uptime" -dmenu -selected-row 0)"
 case $chosen in
     $shutdown)
-		ans=$(confirm_exit &)
-		if [[ $ans == "yes" || $ans == "YES" || $ans == "y" || $ans == "Y" ]]; then
+		ans=$(rdialog &)
+		if [[ $ans == "yes" ]] || [[ $ans == "YES" ]] || [[ $ans == "y" ]]; then
 			systemctl poweroff
-		elif [[ $ans == "no" || $ans == "NO" || $ans == "n" || $ans == "N" ]]; then
-			exit 0
+		elif [[ $ans == "no" ]] || [[ $ans == "NO" ]] || [[ $ans == "n" ]]; then
+			exit
         else
-			msg
+			show_msg
         fi
         ;;
     $reboot)
-		ans=$(confirm_exit &)
-		if [[ $ans == "yes" || $ans == "YES" || $ans == "y" || $ans == "Y" ]]; then
+		ans=$(rdialog &)
+		if [[ $ans == "yes" ]] || [[ $ans == "YES" ]] || [[ $ans == "y" ]]; then
 			systemctl reboot
-		elif [[ $ans == "no" || $ans == "NO" || $ans == "n" || $ans == "N" ]]; then
-			exit 0
+		elif [[ $ans == "no" ]] || [[ $ans == "NO" ]] || [[ $ans == "n" ]]; then
+			exit
         else
-			msg
+			show_msg
         fi
         ;;
     $lock)
-		if [[ -f /usr/bin/i3lock ]]; then
-			i3lock
-		elif [[ -f /usr/bin/betterlockscreen ]]; then
-			betterlockscreen -l
-		fi
+        sh $HOME/.local/bin/lock
         ;;
     $suspend)
-		ans=$(confirm_exit &)
-		if [[ $ans == "yes" || $ans == "YES" || $ans == "y" || $ans == "Y" ]]; then
+		ans=$(rdialog &)
+		if [[ $ans == "yes" ]] || [[ $ans == "YES" ]] || [[ $ans == "y" ]]; then
 			mpc -q pause
 			amixer set Master mute
+			sh $HOME/.local/bin/lock
 			systemctl suspend
-		elif [[ $ans == "no" || $ans == "NO" || $ans == "n" || $ans == "N" ]]; then
-			exit 0
+		elif [[ $ans == "no" ]] || [[ $ans == "NO" ]] || [[ $ans == "n" ]]; then
+			exit
         else
-			msg
+			show_msg
         fi
         ;;
     $logout)
-		ans=$(confirm_exit &)
-		if [[ $ans == "yes" || $ans == "YES" || $ans == "y" || $ans == "Y" ]]; then
-			if [[ "$DESKTOP_SESSION" == "Openbox" ]]; then
-				openbox --exit
-			elif [[ "$DESKTOP_SESSION" == "bspwm" ]]; then
-				bspc quit
-			elif [[ "$DESKTOP_SESSION" == "i3" ]]; then
-				i3-msg exit
-			fi
-		elif [[ $ans == "no" || $ans == "NO" || $ans == "n" || $ans == "N" ]]; then
-			exit 0
+		ans=$(rdialog &)
+		if [[ $ans == "yes" ]] || [[ $ans == "YES" ]] || [[ $ans == "y" ]]; then
+			bspc quit
+		elif [[ $ans == "no" ]] || [[ $ans == "NO" ]] || [[ $ans == "n" ]]; then
+			exit
         else
-			msg
+			show_msg
         fi
         ;;
 esac
+

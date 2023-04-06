@@ -22,12 +22,16 @@ launch_bar() {
 	else
 		for m in $(polybar --list-monitors | cut -d":" -f1); do
 			MONITOR=$m polybar -q main -c "$dir/$style/config.ini" &	
-	done
+		done
 	fi
 }
 
 if [[ "$1" == "--material" ]]; then
 	style="material"
+	launch_bar
+
+elif [[ "$1" == "--catppuccin" ]]; then
+	style="catppuccin"
 	launch_bar
 
 elif [[ "$1" == "--shades" ]]; then

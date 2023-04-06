@@ -24,7 +24,7 @@ font pango:monospace 8
 # they are included here as an example. Modify as you see fit.
 
 exec --no-startup-id picom
-exec_always --no-startup-id feh --bg-fill ~/.config/i3/background.jpg
+exec_always --no-startup-id feh --bg-fill ~/.config/i3/firewatch.png
 
 # xss-lock grabs a logind suspend inhibit lock and will use i3lock to lock the
 # screen before suspend. Use loginctl lock-session to lock your screen.
@@ -51,7 +51,8 @@ bindsym $mod+Return exec kitty
 bindsym $mod+q kill
 
 # start dmenu (a program launcher)
-bindsym $mod+d exec --no-startup-id "~/.config/rofi/launchers/colorful/launcher.sh"
+bindsym $mod+d exec --no-startup-id "~/.config/rofi/bin/launcher-catppuccin-deathemonic"
+bindsym $mod+Shift+d exec --no-startup-id "~/.config/rofi/bin/runner-catppuccin-deathemonic"
 # A more modern dmenu replacement is rofi:
 # bindcode $mod+40 exec "rofi -modi drun,run -show drun"
 # There also is i3-dmenu-desktop which only displays applications shipping a
@@ -224,6 +225,8 @@ for_window [title="Figure "] floating enable
 gaps outer 4
 gaps inner 4
 
+gaps top 44
+
 # Remove window titles
 default_border none
 default_floating_border pixel 1
@@ -240,7 +243,7 @@ exec --no-startup-id spotify
 exec_always --no-startup-id kdeconnect-cli --refresh
 
 exec --no-startup-id dunst -conf ~/.config/dunstrc
-exec_always --no-startup-id "~/.config/polybar/launch.sh --docky"
+exec_always --no-startup-id "~/.config/polybar/launch.sh --catppuccin"
 
 bindsym --release Print exec scrot
 bindsym --release Ctrl+Print exec scrot -s
